@@ -8,25 +8,30 @@ const app = express();
 const multer = require("multer");
 const uploadMiddleware = multer({ dest: "uploads/" });
 const Post = require("./models/Post");
-
 const fs = require("fs");
-
 const cookieParser = require("cookie-parser");
 
 app.use(cookieParser());
-
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-
 app.use(express.json());
-
 app.use("/uploads", express.static(__dirname + "/uploads"));
 
 const salt = bcrypt.genSaltSync(10);
 const secret = "idgaf";
 
-mongoose.connect(
-  "mongodb+srv://geoffrey:495AcSXI168qI0q7@cluster0.p0nao8e.mongodb.net/express_write?retryWrites=true&w=majority"
-);
+(async () => {
+  try {
+    await mongoose.connect(
+      "mongodb+srv://geoffrey:495AcSXI168qI0q7@cluster0.p0nao8e.mongodb.net/express_write"
+    );
+
+    app.listen(3001, () => {
+      console.log("Server started");
+    });
+  } catch (error) {
+    console.error("Error connecting to the database:", error);
+  }
+})();
 
 app.post("/register", async (req, res) => {
   const { username, password, email } = req.body;
@@ -38,7 +43,7 @@ app.post("/register", async (req, res) => {
     });
     res.send({ user: userDoc });
   } catch (e) {
-    res.status(400).json(e);
+    res.status(400).json({ error: "Error registering user" });
   }
 });
 
@@ -52,23 +57,24 @@ app.post("/login", async (req, res) => {
       const passOk = bcrypt.compareSync(password, userDoc.password);
 
       if (passOk) {
-        // login functionality
         jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
-          if (err) throw err;
-          res.cookie("token", token).json({
-            id: userDoc._id,
-
-            username,
-          });
+          if (err) {
+            res.status(500).json({ error: "Error signing token" });
+          } else {
+            res.cookie("token", token).json({
+              id: userDoc._id,
+              username,
+            });
+          }
         });
       } else {
-        res.status(401).json("wrong credentials");
+        res.status(401).json({ error: "Wrong credentials" });
       }
     } else {
-      res.status(401).json("user not found");
+      res.status(401).json({ error: "User not found" });
     }
   } catch (e) {
-    res.status(400).json(e);
+    res.status(400).json({ error: "Error logging in" });
   }
 });
 
@@ -76,17 +82,23 @@ app.get("/profile", (req, res) => {
   const { token } = req.cookies;
 
   jwt.verify(token, secret, {}, (err, info) => {
-    if (err) throw err;
-
-    res.json(info);
+    if (err) {
+      res.status(401).json({ error: "Unauthorized" });
+    } else {
+      res.json(info);
+    }
   });
-  res.json(req.cookies);
 });
 
-app.post("/logout", (req, res) => {
-  res.cookie("token", "").json("ok");
+app.post("/logout", async (req, res) => {
+  try {
+    res.clearCookie("token").json("ok");
+  } catch (e) {
+    res.status(500).json({ error: "Error logging out" });
+  }
 });
 
+// The "/create" and "/posts" routes remain unchanged.
 app.post("/create", uploadMiddleware.single("file"), async (req, res) => {
   const { originalname, path } = req.file;
   const parts = originalname.split(".");
@@ -127,8 +139,4 @@ app.get("/posts/:id", async (req, res) => {
   const post = await Post.findById(id).populate("author", ["username"]);
 
   res.json(post);
-});
-
-app.listen(3001, () => {
-  console.log("Server started");
 });
