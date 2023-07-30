@@ -24,15 +24,17 @@ const secret = "idgaf";
   try {
     await mongoose.connect(process.env.MONGO);
 
-    app.listen(3001, () => {
-      console.log("Server started");
-    });
+    if (process.env.PORT) {
+      app.listen(process.env.PORT, () => {
+        console.log("Server started");
+      });
+    }
   } catch (error) {
     console.error("Error connecting to the database:", error);
   }
 })();
 
-app.post("/register", async (req, res) => {
+app.post("/api/register", async (req, res) => {
   const { username, password, email } = req.body;
   try {
     const userDoc = await User.create({
@@ -46,7 +48,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -77,7 +79,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", (req, res) => {
+app.get("/api/profile", (req, res) => {
   const { token } = req.cookies;
 
   jwt.verify(token, secret, {}, (err, info) => {
@@ -89,7 +91,7 @@ app.get("/profile", (req, res) => {
   });
 });
 
-app.post("/logout", async (req, res) => {
+app.post("/api/logout", async (req, res) => {
   try {
     res.clearCookie("token").json("ok");
   } catch (e) {
@@ -98,7 +100,7 @@ app.post("/logout", async (req, res) => {
 });
 
 // The "/create" and "/posts" routes remain unchanged.
-app.post("/create", uploadMiddleware.single("file"), async (req, res) => {
+app.post("/api/create", uploadMiddleware.single("file"), async (req, res) => {
   const { originalname, path } = req.file;
   const parts = originalname.split(".");
   const ext = parts[parts.length - 1];
@@ -124,7 +126,7 @@ app.post("/create", uploadMiddleware.single("file"), async (req, res) => {
   });
 });
 
-app.get("/posts", async (req, res) => {
+app.get("/api/posts", async (req, res) => {
   try {
     const posts = await Post.find().populate("author", ["username"]);
 
@@ -134,7 +136,7 @@ app.get("/posts", async (req, res) => {
   }
 });
 
-app.get("/posts/:id", async (req, res) => {
+app.get("/api/posts/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -154,7 +156,7 @@ app.get("/posts/:id", async (req, res) => {
   }
 });
 
-app.put("/posts", uploadMiddleware.single("file"), async (req, res) => {
+app.put("/api/posts", uploadMiddleware.single("file"), async (req, res) => {
   try {
     let newPath = null;
 
@@ -199,3 +201,6 @@ app.put("/posts", uploadMiddleware.single("file"), async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+
+module.exports = app
