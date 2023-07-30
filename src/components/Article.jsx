@@ -70,7 +70,7 @@ const Article = () => {
       <div className="mx-5 sm:mx-20 lg:mx-24 max-w-[970px]  flex flex-col gap-10 mt-20">
         <div className="w-full h-[400px]">
           <img
-            src={`https://express-write.onrender.com` + cover}
+            src={`https://express-write.onrender.com/` + cover}
             alt="article"
             className="w-full h-full object-cover mx-auto"
           />
