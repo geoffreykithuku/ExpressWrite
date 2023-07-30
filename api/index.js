@@ -24,7 +24,9 @@ const secret = "idgaf";
 
 (async () => {
   try {
-    await mongoose.connect(process.env.MONGO);
+    await mongoose.connect(
+      "mongodb+srv://geoffrey:495AcSXI168qI0q7@cluster0.p0nao8e.mongodb.net/express_write"
+    );
 
     if (process.env.PORT) {
       app.listen(process.env.PORT, () => {
