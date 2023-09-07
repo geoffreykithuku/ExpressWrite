@@ -58,7 +58,7 @@ const NewArticle = () => {
 
     data.set("title", title);
     data.set("content", content);
-    data.set("file", cover);
+    data.set("cover", cover);
 
     // send data to api
     const res = await fetch(`https://express-write.onrender.com/create`, {
