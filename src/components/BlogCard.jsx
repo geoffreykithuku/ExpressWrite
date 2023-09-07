@@ -27,7 +27,7 @@ const BlogCard = ({ title, content, cover, createdAt, author, _id }) => {
       </div>
       <div>
         <img
-          src={`https://express-write.onrender.com/` + cover}
+          src={cover}
           alt="blog"
           className="max-w-[600px] w-full h-full max-h-[210px] rounded-lg  mx-auto"
         />

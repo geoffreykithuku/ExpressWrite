@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Navigate } from "react-router-dom";
+
+import  imageConverter  from "./utils/imageConverter";
+
 const modules = {
   toolbar: [
     [{ header: "1" }, { header: "2" }, { font: [] }],
@@ -42,13 +45,20 @@ const NewArticle = () => {
   const [content, setContent] = useState("");
   const [files, setFiles] = useState(null);
   const [redirect, setRedirect] = useState(false);
+
   const createPost = async (ev) => {
     ev.preventDefault();
+    let cover;
+
+    if (files[0]) {
+      cover = await imageConverter(files[0]);
+    }
+
     const data = new FormData();
 
     data.set("title", title);
     data.set("content", content);
-    data.set("file", files[0]);
+    data.set("file", cover);
 
     // send data to api
     const res = await fetch(`https://express-write.onrender.com/create`, {

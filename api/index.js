@@ -6,18 +6,19 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
-const multer = require("multer");
-const uploadMiddleware = multer({ dest: "uploads/" });
+
 const Post = require("./models/Post");
 const fs = require("fs");
 const cookieParser = require("cookie-parser");
 
 app.use(cookieParser());
 app.use(
-  cors({ credentials: true, origin: "https://express-write-gamma.vercel.app" })
+  cors({
+    credentials: true,
+    origin: "https://express-write-gamma.vercel.app",
+  })
 );
 app.use(express.json());
-app.use("/uploads", express.static(__dirname + "/uploads"));
 
 const salt = bcrypt.genSaltSync(10);
 const secret = "idgaf";
@@ -25,7 +26,7 @@ const secret = "idgaf";
 (async () => {
   try {
     await mongoose.connect(
-      "mongodb+srv://geoffrey:495AcSXI168qI0q7@cluster0.p0nao8e.mongodb.net/express_write"
+      "mongodb+srv://geoffrey:495AcSXI168qI0q7@cluster0.p0nao8e.mongodb.net/express_write?retryWrites=true&w=majority"
     );
 
     app.listen(3001, () => {
@@ -101,26 +102,18 @@ app.post("/logout", async (req, res) => {
   }
 });
 
-// The "/create" and "/posts" routes remain unchanged.
-app.post("/create", uploadMiddleware.single("file"), async (req, res) => {
-  const { originalname, path } = req.file;
-  const parts = originalname.split(".");
-  const ext = parts[parts.length - 1];
-
-  const newPath = path + "." + ext;
-  fs.renameSync(path, newPath);
-
+app.post("/create", async (req, res) => {
   const { token } = req.cookies;
 
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
 
-    const { title, content } = req.body;
+    const { title, content, cover } = req.body;
 
     const postDoc = await Post.create({
       title,
       content,
-      cover: newPath,
+      cover,
       author: info.id,
     });
 
@@ -158,24 +151,14 @@ app.get("/posts/:id", async (req, res) => {
   }
 });
 
-app.put("/posts", uploadMiddleware.single("file"), async (req, res) => {
+app.put("/posts", async (req, res) => {
   try {
-    let newPath = null;
-
-    if (req.file) {
-      const { originalname, path } = req.file;
-      const parts = originalname.split(".");
-      const ext = parts[parts.length - 1];
-      newPath = path + "." + ext;
-      fs.renameSync(path, newPath);
-    }
-
     const { token } = req.cookies;
 
     jwt.verify(token, secret, {}, async (err, info) => {
       if (err) throw err;
 
-      const { id, title, content } = req.body;
+      const { id, title, content, cover } = req.body;
 
       const postDoc = await Post.findById(id);
 
@@ -193,7 +176,7 @@ app.put("/posts", uploadMiddleware.single("file"), async (req, res) => {
       await postDoc.updateOne({
         title,
         content,
-        cover: newPath ? newPath : postDoc.cover,
+        cover,
       });
 
       res.status(200).json(postDoc);

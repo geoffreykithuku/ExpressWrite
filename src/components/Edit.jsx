@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Navigate, useParams } from "react-router-dom";
+import imageConverter from "./utils/imageConverter";
+
 const modules = {
   toolbar: [
     [{ header: "1" }, { header: "2" }, { font: [] }],
@@ -41,6 +43,7 @@ const Edit = () => {
   const { id } = useParams();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [cover, setCover] = useState("");
   const [files, setFiles] = useState(null);
 
   const [redirect, setRedirect] = useState(false);
@@ -51,8 +54,9 @@ const Edit = () => {
       .then((data) => {
         setTitle(data.title);
         setContent(data.content);
+        setCover(data.cover);
       });
-  }, []);
+  }, [id]);
 
   const updatePost = async (ev) => {
     ev.preventDefault();
@@ -62,7 +66,10 @@ const Edit = () => {
     data.set("content", content);
     data.set("id", id);
     if (files?.[0]) {
-      data.set("file", files?.[0]);
+      const img = await imageConverter(files[0]);
+      setCover(img);
+
+      data.set("file", cover);
     }
 
     // send data to api
