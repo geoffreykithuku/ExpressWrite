@@ -62,7 +62,7 @@ const NewArticle = () => {
     //https://express-write.onrender.com/create
 
     // send data to api
-    const res = await fetch(`http://localhost:3001/create`, {
+    const res = await fetch(`https://express-write.onrender.com/create`, {
       method: "POST",
       body: JSON.stringify({
         title,

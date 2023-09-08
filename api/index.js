@@ -20,10 +20,10 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: "http://localhost:3000",
+    origin: "https://express-write-gamma.vercel.app",
   })
 );
-//https://express-write-gamma.vercel.app
+
 app.use(express.json());
 
 const salt = bcrypt.genSaltSync(10);
@@ -186,15 +186,28 @@ app.put("/posts", async (req, res) => {
         return res.status(403).json({ error: "You are not the author" });
       }
 
-      //upload image to cloudinary
-      const img_url = await cloudinary.uploader.upload(cover, {
-        upload_preset: "express_write",
-      });
+      function isBase64(str) {
+        // Regular expression to match Base64 characters
+        const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+
+        // Test if the input string matches the Base64 pattern
+        return base64Regex.test(str);
+      }
+
+      let img_url = null;
+
+      if (isBase64(cover)) {
+        //upload image to cloudinary
+
+        img_url = await cloudinary.uploader.upload(cover, {
+          upload_preset: "express_write",
+        });
+      }
 
       await postDoc.updateOne({
         title,
         content,
-        cover: img_url,
+        cover: img_url ? img_url.secure_url : cover,
       });
 
       res.status(200).json(postDoc);

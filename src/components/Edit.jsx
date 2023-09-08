@@ -3,7 +3,6 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Navigate, useParams } from "react-router-dom";
 
-
 const modules = {
   toolbar: [
     [{ header: "1" }, { header: "2" }, { font: [] }],
@@ -60,23 +59,31 @@ const Edit = () => {
 
   const updatePost = async (ev) => {
     ev.preventDefault();
-    const data = new FormData();
 
-    data.set("title", title);
-    data.set("content", content);
-    data.set("id", id);
     if (files?.[0]) {
-      const img = files[0];
-      setCover(img);
-
-      data.set("file", cover);
+      const preview = (file) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          setCover(reader.result);
+        };
+      };
+      preview(files?.[0]);
     }
 
     // send data to api
     try {
-      const res = await fetch(`https://express-write.onrender.com/posts/`, {
+      const res = await fetch(`https://express-write.onrender.com/posts`, {
         method: "PUT",
-        body: data,
+        body: JSON.stringify({
+          id,
+          title: title,
+          content: content,
+          cover: cover,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
       });
 

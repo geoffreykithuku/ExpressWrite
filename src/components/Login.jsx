@@ -12,7 +12,7 @@ const Login = () => {
     event.preventDefault();
     //https://express-write.onrender.com/login
     // send data to api
-    const res = await fetch(`http://localhost:3001/login`, {
+    const res = await fetch(`https://express-write.onrender.com/login`, {
       method: "POST",
       body: JSON.stringify({ username, password }),
       headers: {
