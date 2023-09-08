@@ -6,7 +6,7 @@ const Nav = () => {
   const { userInfo, setUserInfo } = useContext(UserContext);
   const [redirect, setRedirect] = useState(false);
   useEffect(() => {
-    fetch(`https://express-write.onrender.com/profile`, {
+    fetch(`http://localhost:3001/profile`, {
       credentials: "include",
     })
       .then((res) => {
@@ -25,7 +25,7 @@ const Nav = () => {
 
   async function logout() {
     try {
-      await fetch(`https://express-write.onrender.com/logout`, {
+      await fetch(`http://localhost:3001/logout`, {
         credentials: "include",
         method: "POST",
       });

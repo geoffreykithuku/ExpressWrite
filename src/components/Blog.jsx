@@ -6,7 +6,7 @@ const Blog = () => {
   const { blogs, setBlogs } = useContext(BlogContext);
 
   useEffect(() => {
-    fetch(`https://express-write.onrender.com/posts`)
+    fetch(`http://localhost:3001/posts`)
       .then((res) => res.json())
       .then((data) => setBlogs(data));
   }, []);

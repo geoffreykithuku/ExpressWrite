@@ -25,7 +25,7 @@ const Register = () => {
     }
 
     // send data to api
-    const res = await fetch(`https://express-write.onrender.com/register`, {
+    const res = await fetch(`http://localhost:3001/register`, {
       method: "POST",
       body: JSON.stringify(form),
       headers: {

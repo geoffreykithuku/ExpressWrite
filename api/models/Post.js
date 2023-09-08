@@ -3,12 +3,15 @@ const { Schema, model } = mongoose;
 
 const PostSchema = new Schema(
   {
-    title: String,
-    content: String,
-    cover: {
-      public_id: String,
-      url: String,
+    title: {
+      type: String,
+      required: true,
     },
+    content: {
+      type: String,
+      require: true,
+    },
+    cover: String,
     author: { type: Schema.Types.ObjectId, ref: "User" },
   },
   {

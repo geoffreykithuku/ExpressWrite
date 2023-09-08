@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Navigate, useParams } from "react-router-dom";
-import imageConverter from "./utils/imageConverter";
+
 
 const modules = {
   toolbar: [
@@ -66,7 +66,7 @@ const Edit = () => {
     data.set("content", content);
     data.set("id", id);
     if (files?.[0]) {
-      const img = await imageConverter(files[0]);
+      const img = files[0];
       setCover(img);
 
       data.set("file", cover);

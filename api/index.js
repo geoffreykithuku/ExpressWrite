@@ -6,19 +6,24 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
-const cloudinary = require("./utils/cloudinary");
+const { cloudinary } = require("./utils/cloudinary");
 
 const Post = require("./models/Post");
 
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: "https://express-write-gamma.vercel.app",
+    origin: "http://localhost:3000",
   })
 );
+//https://express-write-gamma.vercel.app
 app.use(express.json());
 
 const salt = bcrypt.genSaltSync(10);
@@ -108,25 +113,20 @@ app.post("/create", async (req, res) => {
 
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
-
     const { title, content, cover } = req.body;
 
+    //upload image to cloudinary
     try {
-      //upload image to cloudinary
       const img_url = await cloudinary.uploader.upload(cover, {
-        folder: "express-write",
+        upload_preset: "express_write",
       });
 
       const postDoc = await Post.create({
         title: title,
         content: content,
-        cover: {
-          public_id: img_url.public_id,
-          url: img_url.secure_url,
-        },
+        cover: img_url.secure_url,
         author: info.id,
       });
-
       res.status(201).json(postDoc);
     } catch (e) {
       console.error(e);
@@ -186,10 +186,15 @@ app.put("/posts", async (req, res) => {
         return res.status(403).json({ error: "You are not the author" });
       }
 
+      //upload image to cloudinary
+      const img_url = await cloudinary.uploader.upload(cover, {
+        upload_preset: "express_write",
+      });
+
       await postDoc.updateOne({
         title,
         content,
-        cover,
+        cover: img_url,
       });
 
       res.status(200).json(postDoc);

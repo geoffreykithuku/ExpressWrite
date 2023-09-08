@@ -3,8 +3,6 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Navigate } from "react-router-dom";
 
-import  imageConverter  from "./utils/imageConverter";
-
 const modules = {
   toolbar: [
     [{ header: "1" }, { header: "2" }, { font: [] }],
@@ -45,25 +43,35 @@ const NewArticle = () => {
   const [content, setContent] = useState("");
   const [files, setFiles] = useState(null);
   const [redirect, setRedirect] = useState(false);
+  const [cover, setCover] = useState("");
 
   const createPost = async (ev) => {
     ev.preventDefault();
-    let cover;
 
     if (files[0]) {
-      cover = await imageConverter(files[0]);
+      const preview = (file) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          setCover(reader.result);
+        };
+      };
+      preview(files[0]);
     }
 
-    const data = new FormData();
-
-    data.set("title", title);
-    data.set("content", content);
-    data.set("cover", cover);
+    //https://express-write.onrender.com/create
 
     // send data to api
-    const res = await fetch(`https://express-write.onrender.com/create`, {
+    const res = await fetch(`http://localhost:3001/create`, {
       method: "POST",
-      body: data,
+      body: JSON.stringify({
+        title,
+        content,
+        cover: cover,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
       credentials: "include",
     });
 
@@ -116,6 +124,7 @@ const NewArticle = () => {
           Create Post
         </button>
       </form>
+      {cover && <img src={cover} alt="cover" />}
     </div>
   );
 };
