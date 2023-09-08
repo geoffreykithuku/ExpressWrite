@@ -6,9 +6,10 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
+const cloudinary = require(".utils/cloudinary");
 
 const Post = require("./models/Post");
-const fs = require("fs");
+
 const cookieParser = require("cookie-parser");
 
 app.use(cookieParser());
@@ -110,14 +111,26 @@ app.post("/create", async (req, res) => {
 
     const { title, content, cover } = req.body;
 
-    const postDoc = await Post.create({
-      title,
-      content,
-      cover,
-      author: info.id,
-    });
+    try {
+      //upload image to cloudinary
+      const img_url = await cloudinary.uploader.upload(cover, {
+        folder: "express-write",
+      });
 
-    res.status(201).json(postDoc);
+      const postDoc = await Post.create({
+        title: title,
+        content: content,
+        cover: {
+          public_id: img_url.public_id,
+          url: img_url.secure_url,
+        },
+        author: info.id,
+      });
+
+      res.status(201).json(postDoc);
+    } catch (e) {
+      console.error(e);
+    }
   });
 });
 
