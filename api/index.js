@@ -6,7 +6,7 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
-const cloudinary = require(".utils/cloudinary");
+const cloudinary = require("./utils/cloudinary");
 
 const Post = require("./models/Post");
 
