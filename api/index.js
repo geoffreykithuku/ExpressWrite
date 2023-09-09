@@ -262,14 +262,14 @@ const secret = "idgaf";
 })();
 
 // Middleware for verifying JWT tokens
-const verifyToken = (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+const verifyToken = async (req, res, next) => {
+  const { token } = req.cookies || req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  jwt.verify(token, secret, (err, decoded) => {
+  await jwt.verify(token, secret, (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: "Unauthorized" });
     }
