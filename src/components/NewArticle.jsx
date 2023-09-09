@@ -124,7 +124,7 @@ const NewArticle = () => {
           Create Post
         </button>
       </form>
-      {cover && <img src={cover} alt="cover" />}
+     
     </div>
   );
 };

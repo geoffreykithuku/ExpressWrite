@@ -111,7 +111,7 @@ app.post("/logout", async (req, res) => {
 app.post("/create", async (req, res) => {
   const { token } = req.cookies;
 
-  jwt.verify(token, secret, {}, async (err, info) => {
+  await jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
     const { title, content, cover } = req.body;
 
@@ -168,7 +168,7 @@ app.put("/posts", async (req, res) => {
   try {
     const { token } = req.cookies;
 
-    jwt.verify(token, secret, {}, async (err, info) => {
+  await jwt.verify(token, secret, {}, async (err, info) => {
       if (err) throw err;
 
       const { id, title, content, cover } = req.body;
