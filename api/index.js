@@ -262,22 +262,19 @@ const secret = "idgaf";
 })();
 
 // Middleware for verifying JWT tokens
-const verifyToken = async (req, res, next) => {
-  const { token } = req.cookies || req.headers.authorization?.split(" ")[1];
+const verifyToken = (req, res, next) => {
+  const { token } = req.cookies;
 
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  await jwt.verify(token, secret, (err, decoded) => {
+  jwt.verify(token, secret, {}, (err, info) => {
     if (err) {
-      return res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized" });
+    } else {
+      req.user = info;
+      next();
     }
-
-    req.user = decoded; // Attach user information to the request
-    next();
   });
 };
+
 
 // Registration route
 app.post("/register", async (req, res) => {
