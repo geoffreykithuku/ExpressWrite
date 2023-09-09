@@ -168,7 +168,7 @@
 //   try {
 //     const { token } = req.cookies;
 
-//   await jwt.verify(token, secret, {}, async (err, info) => {
+//     await jwt.verify(token, secret, {}, async (err, info) => {
 //       if (err) throw err;
 
 //       const { id, title, content, cover } = req.body;
@@ -217,7 +217,6 @@
 //     res.status(500).json({ error: "Server error" });
 //   }
 // });
-
 
 const express = require("express");
 require("dotenv").config();
@@ -336,7 +335,7 @@ app.post("/create", verifyToken, async (req, res) => {
     const postDoc = await Post.create({
       title,
       content,
-      cover,
+      cover: cover,
       author: id,
     });
     res.status(201).json(postDoc);
@@ -415,9 +414,4 @@ app.post("/logout", async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: "Error logging out" });
   }
-});
-
-// Start the server
-app.listen(3001, () => {
-  console.log("Server started");
 });

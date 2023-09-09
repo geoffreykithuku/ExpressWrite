@@ -124,7 +124,6 @@ const NewArticle = () => {
           Create Post
         </button>
       </form>
-     
     </div>
   );
 };

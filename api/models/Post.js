@@ -11,7 +11,10 @@ const PostSchema = new Schema(
       type: String,
       require: true,
     },
-    cover: String,
+    cover: {
+      type: String,
+      required: true,
+    },
     author: { type: Schema.Types.ObjectId, ref: "User" },
   },
   {
