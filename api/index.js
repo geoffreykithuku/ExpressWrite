@@ -1,3 +1,224 @@
+// const express = require("express");
+// require("dotenv").config();
+// const cors = require("cors");
+// const mongoose = require("mongoose");
+// const User = require("./models/User");
+// const bcrypt = require("bcryptjs");
+// const jwt = require("jsonwebtoken");
+// const app = express();
+// const { cloudinary } = require("./utils/cloudinary");
+
+// const Post = require("./models/Post");
+
+// const cookieParser = require("cookie-parser");
+// const bodyParser = require("body-parser");
+
+// app.use(bodyParser.json({ limit: "50mb" }));
+// app.use(bodyParser.urlencoded({ extended: true }));
+
+// app.use(cookieParser());
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin: "https://express-write-gamma.vercel.app",
+//   })
+// );
+
+// app.use(express.json());
+
+// const salt = bcrypt.genSaltSync(10);
+// const secret = "idgaf";
+
+// (async () => {
+//   try {
+//     await mongoose.connect(
+//       "mongodb+srv://geoffrey:495AcSXI168qI0q7@cluster0.p0nao8e.mongodb.net/express_write?retryWrites=true&w=majority"
+//     );
+
+//     app.listen(3001, () => {
+//       console.log("Server started");
+//     });
+//   } catch (error) {
+//     console.error("Error connecting to the database:", error);
+//   }
+// })();
+
+// app.post("/register", async (req, res) => {
+//   const { username, password, email } = req.body;
+//   try {
+//     const userDoc = await User.create({
+//       username,
+//       email,
+//       password: bcrypt.hashSync(password, salt),
+//     });
+//     res.send({ user: userDoc });
+//   } catch (e) {
+//     res.status(400).json({ error: "Error registering user" });
+//   }
+// });
+
+// app.post("/login", async (req, res) => {
+//   const { username, password } = req.body;
+
+//   try {
+//     const userDoc = await User.findOne({ username });
+
+//     if (userDoc) {
+//       const passOk = bcrypt.compareSync(password, userDoc.password);
+
+//       if (passOk) {
+//         jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
+//           if (err) {
+//             res.status(500).json({ error: "Error signing token" });
+//           } else {
+//             res.cookie("token", token).json({
+//               id: userDoc._id,
+//               username,
+//             });
+//           }
+//         });
+//       } else {
+//         res.status(401).json({ error: "Wrong credentials" });
+//       }
+//     } else {
+//       res.status(401).json({ error: "User not found" });
+//     }
+//   } catch (e) {
+//     res.status(400).json({ error: "Error logging in" });
+//   }
+// });
+
+// app.get("/profile", (req, res) => {
+//   const { token } = req.cookies;
+
+//   jwt.verify(token, secret, {}, (err, info) => {
+//     if (err) {
+//       res.status(401).json({ error: "Unauthorized" });
+//     } else {
+//       res.json(info);
+//     }
+//   });
+// });
+
+// app.post("/logout", async (req, res) => {
+//   try {
+//     res.clearCookie("token").json("ok");
+//   } catch (e) {
+//     res.status(500).json({ error: "Error logging out" });
+//   }
+// });
+
+// app.post("/create", async (req, res) => {
+//   const { token } = req.cookies;
+
+//   await jwt.verify(token, secret, {}, async (err, info) => {
+//     if (err) throw err;
+//     const { title, content, cover } = req.body;
+
+//     //upload image to cloudinary
+//     try {
+//       // const img_url = await cloudinary.uploader.upload(cover, {
+//       //   upload_preset: "express_write",
+//       // });
+
+//       const postDoc = await Post.create({
+//         title: title,
+//         content: content,
+//         cover: cover,
+//         author: info.id,
+//       });
+//       res.status(201).json(postDoc);
+//     } catch (e) {
+//       console.error(e);
+//     }
+//   });
+// });
+
+// app.get("/posts", async (req, res) => {
+//   try {
+//     const posts = await Post.find().populate("author", ["username"]);
+
+//     res.json(posts);
+//   } catch (e) {
+//     console.error(e);
+//   }
+// });
+
+// app.get("/posts/:id", async (req, res) => {
+//   const { id } = req.params;
+
+//   try {
+//     const post = await Post.findById(id).populate("author", [
+//       "username",
+//       "_id",
+//     ]);
+
+//     if (!post) {
+//       return res.status(404).json({ error: "Post not found" });
+//     }
+
+//     res.json(post);
+//   } catch (error) {
+//     console.error("Error fetching post:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
+// app.put("/posts", async (req, res) => {
+//   try {
+//     const { token } = req.cookies;
+
+//   await jwt.verify(token, secret, {}, async (err, info) => {
+//       if (err) throw err;
+
+//       const { id, title, content, cover } = req.body;
+
+//       const postDoc = await Post.findById(id);
+
+//       if (!postDoc) {
+//         return res.status(404).json({ error: "Post not found" });
+//       }
+
+//       const isAuthor =
+//         JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+
+//       if (!isAuthor) {
+//         return res.status(403).json({ error: "You are not the author" });
+//       }
+
+//       // function isBase64(str) {
+//       //   // Regular expression to match Base64 characters
+//       //   const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+
+//       //   // Test if the input string matches the Base64 pattern
+//       //   return base64Regex.test(str);
+//       // }
+
+//       // let img_url = null;
+
+//       // if (isBase64(cover)) {
+//       //   //upload image to cloudinary
+
+//       //   img_url = await cloudinary.uploader.upload(cover, {
+//       //     upload_preset: "express_write",
+//       //   });
+//       // }
+
+//       await postDoc.updateOne({
+//         title,
+//         content,
+//         cover: cover,
+//       });
+
+//       res.status(200).json(postDoc);
+//     });
+//   } catch (error) {
+//     console.error("Error in route handler:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
@@ -5,17 +226,15 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const app = express();
 const { cloudinary } = require("./utils/cloudinary");
-
 const Post = require("./models/Post");
-
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 
+const app = express();
+
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(cookieParser());
 app.use(
   cors({
@@ -43,6 +262,25 @@ const secret = "idgaf";
   }
 })();
 
+// Middleware for verifying JWT tokens
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  jwt.verify(token, secret, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    req.user = decoded; // Attach user information to the request
+    next();
+  });
+};
+
+// Registration route
 app.post("/register", async (req, res) => {
   const { username, password, email } = req.body;
   try {
@@ -57,6 +295,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
+// Login route
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -88,62 +327,37 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", (req, res) => {
-  const { token } = req.cookies;
+// Create post route (protected with JWT)
+app.post("/create", verifyToken, async (req, res) => {
+  const { title, content, cover } = req.body;
+  const { id } = req.user;
 
-  jwt.verify(token, secret, {}, (err, info) => {
-    if (err) {
-      res.status(401).json({ error: "Unauthorized" });
-    } else {
-      res.json(info);
-    }
-  });
-});
-
-app.post("/logout", async (req, res) => {
   try {
-    res.clearCookie("token").json("ok");
+    const postDoc = await Post.create({
+      title,
+      content,
+      cover,
+      author: id,
+    });
+    res.status(201).json(postDoc);
   } catch (e) {
-    res.status(500).json({ error: "Error logging out" });
+    console.error(e);
+    res.status(500).json({ error: "Error creating post" });
   }
 });
 
-app.post("/create", async (req, res) => {
-  const { token } = req.cookies;
-
-  await jwt.verify(token, secret, {}, async (err, info) => {
-    if (err) throw err;
-    const { title, content, cover } = req.body;
-
-    //upload image to cloudinary
-    try {
-      // const img_url = await cloudinary.uploader.upload(cover, {
-      //   upload_preset: "express_write",
-      // });
-
-      const postDoc = await Post.create({
-        title: title,
-        content: content,
-        cover: cover,
-        author: info.id,
-      });
-      res.status(201).json(postDoc);
-    } catch (e) {
-      console.error(e);
-    }
-  });
-});
-
+// Fetch all posts route
 app.get("/posts", async (req, res) => {
   try {
     const posts = await Post.find().populate("author", ["username"]);
-
     res.json(posts);
   } catch (e) {
     console.error(e);
+    res.status(500).json({ error: "Error fetching posts" });
   }
 });
 
+// Fetch a single post by ID
 app.get("/posts/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -164,56 +378,46 @@ app.get("/posts/:id", async (req, res) => {
   }
 });
 
-app.put("/posts", async (req, res) => {
+// Update post route (protected with JWT)
+app.put("/posts/:id", verifyToken, async (req, res) => {
+  const { id } = req.params;
+  const { title, content, cover } = req.body;
+  const { id: userId } = req.user;
+
   try {
-    const { token } = req.cookies;
+    const postDoc = await Post.findById(id);
 
-  await jwt.verify(token, secret, {}, async (err, info) => {
-      if (err) throw err;
+    if (!postDoc) {
+      return res.status(404).json({ error: "Post not found" });
+    }
 
-      const { id, title, content, cover } = req.body;
+    if (postDoc.author.toString() !== userId) {
+      return res.status(403).json({ error: "You are not the author" });
+    }
 
-      const postDoc = await Post.findById(id);
+    postDoc.title = title;
+    postDoc.content = content;
+    postDoc.cover = cover;
 
-      if (!postDoc) {
-        return res.status(404).json({ error: "Post not found" });
-      }
+    await postDoc.save();
 
-      const isAuthor =
-        JSON.stringify(postDoc.author) === JSON.stringify(info.id);
-
-      if (!isAuthor) {
-        return res.status(403).json({ error: "You are not the author" });
-      }
-
-      // function isBase64(str) {
-      //   // Regular expression to match Base64 characters
-      //   const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
-
-      //   // Test if the input string matches the Base64 pattern
-      //   return base64Regex.test(str);
-      // }
-
-      // let img_url = null;
-
-      // if (isBase64(cover)) {
-      //   //upload image to cloudinary
-
-      //   img_url = await cloudinary.uploader.upload(cover, {
-      //     upload_preset: "express_write",
-      //   });
-      // }
-
-      await postDoc.updateOne({
-        title,
-        content,
-        cover: cover,
-      });
-
-      res.status(200).json(postDoc);
-    });
+    res.status(200).json(postDoc);
   } catch (error) {
-    console.error("Error in route handler:", error);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error updating post:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+});
+
+// Logout route
+app.post("/logout", async (req, res) => {
+  try {
+    res.clearCookie("token").json("ok");
+  } catch (e) {
+    res.status(500).json({ error: "Error logging out" });
+  }
+});
+
+// Start the server
+app.listen(3001, () => {
+  console.log("Server started");
 });
