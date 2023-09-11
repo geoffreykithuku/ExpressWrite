@@ -6,14 +6,13 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [redirect, setRedirect] = useState(false);
-  const [error, setError] = useState(null); // Add state to manage errors
+  const [error, setError] = useState(null);
   const { setUserInfo } = useContext(UserContext);
 
   const login = async (event) => {
     event.preventDefault();
 
     try {
-      // Send data to the API
       const res = await fetch(`https://express-write.onrender.com/login`, {
         method: "POST",
         body: JSON.stringify({ username, password }),
@@ -24,8 +23,12 @@ const Login = () => {
       });
 
       if (res.status === 200) {
-        const info = await res.json();
-        setUserInfo({ id: info.id, username: info.username });
+        const { id, username, token } = await res.json();
+
+        // Store the token in local storage or a secure cookie for future use
+        localStorage.setItem("token", token);
+
+        setUserInfo({ id, username });
         setRedirect(true);
       } else if (res.status === 401) {
         setError("Incorrect username or password");
@@ -33,7 +36,7 @@ const Login = () => {
         setError("An error occurred");
       }
     } catch (error) {
-      setError("An unexpected error occurred"); // Handle unexpected errors
+      setError("An unexpected error occurred");
     }
   };
 
@@ -72,8 +75,7 @@ const Login = () => {
         >
           Login
         </button>
-        {error && <div className="text-red-500">{error}</div>}{" "}
-        {/* Display error message */}
+        {error && <div className="text-red-500">{error}</div>}
       </form>
     </div>
   );

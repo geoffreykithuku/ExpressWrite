@@ -58,34 +58,39 @@ const NewArticle = () => {
     preview(files[0]);
   }
 
-  const createPost = async (ev) => {
-    ev.preventDefault();
+    const createPost = async (ev) => {
+      ev.preventDefault();
 
-    try {
-      // Send data to the API
-      const res = await fetch(`https://express-write.onrender.com/create`, {
-        method: "POST",
-        body: JSON.stringify({
-          title,
-          content,
-          cover: cover,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      try {
+        // Get the JWT token from local storage
+        const token = localStorage.getItem("token");
 
-      if (res.status === 201) {
-        alert("Post created successfully");
-        setRedirect(true);
-      } else {
-        throw new Error("Failed to create post");
+        // Send data to the API with the JWT token in the headers
+        const res = await fetch(`https://express-write.onrender.com/create`, {
+          method: "POST",
+          body: JSON.stringify({
+            title,
+            content,
+            cover: cover,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include the JWT token in the headers
+          },
+          credentials: "include",
+        });
+
+        if (res.status === 201) {
+          alert("Post created successfully");
+          setRedirect(true);
+        } else {
+          throw new Error("Failed to create post");
+        }
+      } catch (error) {
+        setError(error.message);
       }
-    } catch (error) {
-      setError(error.message);
-    }
-  };
+    };
+
 
   if (redirect) {
     return <Navigate to={"/"} />;

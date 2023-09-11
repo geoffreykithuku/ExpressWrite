@@ -9,32 +9,47 @@ const Nav = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`https://express-write.onrender.com/profile`, {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Request failed with status " + res.status);
+    // Fetch user profile to check if the user is authenticated
+    async function fetchUserProfile() {
+      try {
+        const token = localStorage.getItem("token"); // Get the JWT token from local storage
+
+        const res = await fetch(`https://express-write.onrender.com/profile`, {
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the JWT token in the headers
+          },
+        });
+
+        if (res.status === 200) {
+          const info = await res.json();
+          setUserInfo({ id: info.id, username: info.username });
+        } else {
+          setUserInfo(null);
         }
-        return res.json();
-      })
-      .then((info) => {
-        setUserInfo({ id: info.id, username: info.username });
+      } catch (error) {
+        setError(error);
+      } finally {
         setLoading(false); // Mark loading as complete
-      })
-      .catch((error) => {
-        setError(error); // Set the error state
-        setLoading(false); // Mark loading as complete
-      });
-  }, []);
+      }
+    }
+
+    fetchUserProfile();
+  }, [setUserInfo]);
 
   async function logout() {
     try {
+      const token = localStorage.getItem("token"); 
+
       await fetch(`https://express-write.onrender.com/logout`, {
         credentials: "include",
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setUserInfo(null);
+      localStorage.removeItem("token"); // Remove the token from local storage
       alert("You are logged out!");
       setRedirect(true);
     } catch (error) {

@@ -81,7 +81,10 @@ const Edit = () => {
     ev.preventDefault();
 
     try {
-      // Send data to the API
+      // Get the JWT token from local storage
+      const token = localStorage.getItem("token");
+
+      // Send data to the API with the JWT token in the headers
       const res = await fetch(`https://express-write.onrender.com/posts`, {
         method: "PUT",
         body: JSON.stringify({
@@ -92,6 +95,7 @@ const Edit = () => {
         }),
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include the JWT token in the headers
         },
         credentials: "include",
       });

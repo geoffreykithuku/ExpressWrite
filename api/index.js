@@ -69,9 +69,11 @@ app.post("/login", async (req, res) => {
             console.error("Error signing token:", err);
             res.status(500).json({ error: "Error signing token" });
           } else {
-            res.cookie("token", token).json({
+            // Send the token as JSON response
+            res.json({
               id: userDoc._id,
               username,
+              token, // Include the token in the response
             });
           }
         });
@@ -88,7 +90,8 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/profile", (req, res) => {
-  const { token } = req.cookies;
+const token = req.header("Authorization").replace("Bearer ", "");
+
 
   jwt.verify(token, secret, {}, (err, info) => {
     if (err) {
@@ -110,9 +113,10 @@ app.post("/logout", async (req, res) => {
 });
 
 app.post("/create", async (req, res) => {
-  const { token } = req.cookies;
+ const token = req.header("Authorization").replace("Bearer ", "");
 
-  await jwt.verify(token, secret, {}, async (err, info) => {
+
+  jwt.verify(token, secret, {}, async (err, info) => {
     if (err) {
       console.error("Error verifying token:", err);
       res.status(401).json({ error: "Unauthorized" });
@@ -173,9 +177,10 @@ app.get("/posts/:id", async (req, res) => {
 
 app.put("/posts", async (req, res) => {
   try {
-    const { token } = req.cookies;
+    const token = req.header("Authorization").replace("Bearer ", "");
 
-    await jwt.verify(token, secret, {}, async (err, info) => {
+
+    jwt.verify(token, secret, {}, async (err, info) => {
       if (err) {
         console.error("Error verifying token:", err);
         res.status(401).json({ error: "Unauthorized" });
