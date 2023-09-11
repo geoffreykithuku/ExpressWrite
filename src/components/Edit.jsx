@@ -43,7 +43,7 @@ const Edit = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [cover, setCover] = useState("");
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState([]);
 
   const [redirect, setRedirect] = useState(false);
 
@@ -57,19 +57,19 @@ const Edit = () => {
       });
   }, [id]);
 
+  if (files?.[0]) {
+    const preview = (file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setCover(reader.result);
+      };
+    };
+    preview(files?.[0]);
+  }
+
   const updatePost = async (ev) => {
     ev.preventDefault();
-
-    if (files?.[0]) {
-      const preview = (file) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-          setCover(reader.result);
-        };
-      };
-      preview(files?.[0]);
-    }
 
     // send data to api
     try {

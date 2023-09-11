@@ -41,23 +41,24 @@ const formats = [
 const NewArticle = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState([]);
   const [redirect, setRedirect] = useState(false);
   const [cover, setCover] = useState("");
 
+   if (files[0]) {
+     const preview = (file) => {
+       const reader = new FileReader();
+       reader.readAsDataURL(file);
+       reader.onloadend = () => {
+         setCover(reader.result);
+       };
+     };
+
+     preview(files[0]);
+   }
+
   const createPost = async (ev) => {
     ev.preventDefault();
-
-    if (files[0]) {
-      const preview = (file) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-          setCover(reader.result);
-        };
-      };
-      preview(files[0]);
-    }
 
     //https://express-write.onrender.com/create
 

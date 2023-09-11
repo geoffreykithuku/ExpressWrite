@@ -214,7 +214,6 @@ app.put("/posts", async (req, res) => {
   }
 });
 
-
 app.listen(3001, () => {
   console.log("Server started");
 });
