@@ -5,6 +5,9 @@ import { UserContext } from "../Context";
 const Nav = () => {
   const { userInfo, setUserInfo } = useContext(UserContext);
   const [redirect, setRedirect] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     fetch(`https://express-write.onrender.com/profile`, {
       credentials: "include",
@@ -17,11 +20,13 @@ const Nav = () => {
       })
       .then((info) => {
         setUserInfo({ id: info.id, username: info.username });
+        setLoading(false); // Mark loading as complete
       })
       .catch((error) => {
-        console.error(error);
+        setError(error); // Set the error state
+        setLoading(false); // Mark loading as complete
       });
-  }, []);
+  }, [setUserInfo]);
 
   async function logout() {
     try {
@@ -36,6 +41,15 @@ const Nav = () => {
       console.error("Logout error:", error);
     }
   }
+
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading message
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>; // Show an error message
+  }
+
   if (redirect) {
     return <Navigate to={"/"} />;
   }

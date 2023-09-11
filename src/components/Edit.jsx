@@ -44,16 +44,25 @@ const Edit = () => {
   const [content, setContent] = useState("");
   const [cover, setCover] = useState("");
   const [files, setFiles] = useState([]);
-
   const [redirect, setRedirect] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch(`https://express-write.onrender.com/posts/${id}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch post");
+        }
+        return res.json();
+      })
       .then((data) => {
         setTitle(data.title);
         setContent(data.content);
         setCover(data.cover);
+      })
+      .catch((error) => {
+        console.error("Error fetching post:", error);
+        setError("Failed to fetch post");
       });
   }, [id]);
 
@@ -71,8 +80,8 @@ const Edit = () => {
   const updatePost = async (ev) => {
     ev.preventDefault();
 
-    // send data to api
     try {
+      // Send data to the API
       const res = await fetch(`https://express-write.onrender.com/posts`, {
         method: "PUT",
         body: JSON.stringify({
@@ -144,6 +153,8 @@ const Edit = () => {
         >
           Update Post
         </button>
+
+        {error && <div className="text-red-500">{error}</div>}
       </form>
     </div>
   );

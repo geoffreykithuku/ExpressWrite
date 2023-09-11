@@ -44,51 +44,53 @@ const NewArticle = () => {
   const [files, setFiles] = useState([]);
   const [redirect, setRedirect] = useState(false);
   const [cover, setCover] = useState("");
+  const [error, setError] = useState(null);
 
-   if (files[0]) {
-     const preview = (file) => {
-       const reader = new FileReader();
-       reader.readAsDataURL(file);
-       reader.onloadend = () => {
-         setCover(reader.result);
-       };
-     };
+  if (files[0]) {
+    const preview = (file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setCover(reader.result);
+      };
+    };
 
-     preview(files[0]);
-   }
+    preview(files[0]);
+  }
 
   const createPost = async (ev) => {
     ev.preventDefault();
 
-    //https://express-write.onrender.com/create
+    try {
+      // Send data to the API
+      const res = await fetch(`https://express-write.onrender.com/create`, {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          content,
+          cover: cover,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
 
-    // send data to api
-    const res = await fetch(`https://express-write.onrender.com/create`, {
-      method: "POST",
-      body: JSON.stringify({
-        title,
-        content,
-        cover: cover,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-
-    console.log(await res.json());
-
-    if (res.status === 201) {
-      alert("Post created successfully");
-      setRedirect(true);
-    } else {
-      alert("failed");
+      if (res.status === 201) {
+        alert("Post created successfully");
+        setRedirect(true);
+      } else {
+        throw new Error("Failed to create post");
+      }
+    } catch (error) {
+      setError(error.message);
     }
   };
 
   if (redirect) {
     return <Navigate to={"/"} />;
   }
+
   return (
     <div className="flex items-center justify-center w-[60%] mx-auto py-12">
       <form
@@ -124,6 +126,8 @@ const NewArticle = () => {
         >
           Create Post
         </button>
+
+        {error && <div className="text-red-500">{error}</div>}
       </form>
     </div>
   );

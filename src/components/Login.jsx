@@ -6,30 +6,34 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [redirect, setRedirect] = useState(false);
+  const [error, setError] = useState(null); // Add state to manage errors
   const { setUserInfo } = useContext(UserContext);
 
   const login = async (event) => {
     event.preventDefault();
-    //https://express-write.onrender.com/login
-    // send data to api
-    const res = await fetch(`https://express-write.onrender.com/login`, {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
 
-    if (res.status === 200) {
-      res.json().then((info) => {
+    try {
+      // Send data to the API
+      const res = await fetch(`https://express-write.onrender.com/login`, {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (res.status === 200) {
+        const info = await res.json();
         setUserInfo({ id: info.id, username: info.username });
         setRedirect(true);
-      });
-    } else if (res.status === 401) {
-      alert("Incorrect username or password");
-    } else {
-      alert("An error occurred");
+      } else if (res.status === 401) {
+        setError("Incorrect username or password");
+      } else {
+        setError("An error occurred");
+      }
+    } catch (error) {
+      setError("An unexpected error occurred"); // Handle unexpected errors
     }
   };
 
@@ -44,7 +48,6 @@ const Login = () => {
         className="shadow-md my-5 flex flex-col gap-5 mx-auto w-fit p-8 text-[#232e52]"
       >
         <h3 className="text-lg font-semibold">Welcome to ExpressWrite</h3>
-
         <input
           name="username"
           value={username}
@@ -63,13 +66,14 @@ const Login = () => {
           placeholder="password"
           required
         />
-
         <button
           className="bg-[#232E52] text-white text-lg rounded-md shadow-md py-3 hover:bg-[#2e417a]"
           type="submit"
         >
           Login
         </button>
+        {error && <div className="text-red-500">{error}</div>}{" "}
+        {/* Display error message */}
       </form>
     </div>
   );
