@@ -26,7 +26,7 @@ const Nav = () => {
         setError(error); // Set the error state
         setLoading(false); // Mark loading as complete
       });
-  }, [setUserInfo]);
+  }, []);
 
   async function logout() {
     try {
@@ -47,7 +47,7 @@ const Nav = () => {
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>; // Show an error message
+    console.error("Profile error:", error);
   }
 
   if (redirect) {
