@@ -45,10 +45,10 @@ const Login = () => {
   }
 
   return (
-    <div className="pt-8 items-center justify-center">
+    <div className="pt-8 items-center justify-center min-h-[75vh]">
       <form
         onSubmit={login}
-        className="shadow-md my-5 flex flex-col gap-5 mx-auto w-fit p-8 text-[#232e52]"
+        className="shadow-md my-5 flex flex-col gap-5 mx-auto w-full max-w-[400px] p-8 text-[#232e52]"
       >
         <h3 className="text-lg font-semibold">Welcome to ExpressWrite</h3>
         <input
