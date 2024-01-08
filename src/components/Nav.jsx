@@ -57,9 +57,7 @@ const Nav = () => {
     }
   }
 
-  if (loading) {
-    return <div>Loading...</div>; // Show a loading message
-  }
+ 
 
   if (error) {
     console.error("Profile error:", error);

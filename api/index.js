@@ -16,19 +16,20 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cookieParser());
-// app.use(
-//   cors({
-//     credentials: true,
-//     origin: "https://express-write-gamma.vercel.app",
-//   })
-// );
 
 app.use(
   cors({
     credentials: true,
-    origin: "http://localhost:3000",
+    origin: "https://express-write-gamma.vercel.app",
   })
 );
+
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin: "http://localhost:3000",
+//   })
+// );
 app.use(express.json());
 
 const salt = bcrypt.genSaltSync(10);
