@@ -14,25 +14,25 @@ import Spinner from "./components/Spinner";
 
 function App() {
   return (
-    // <UserContextProvider>
-    //   <BlogProvider>
-    //     <div className="max-w-[1440px] h-full   w-full">
-    //       <Header />
-    //       <Routes>
-    //         <Route path="/" element={<Hero />} />
-    //         <Route path="/new" element={<NewArticle />} />
-    //         <Route path="/blog/:id/edit" element={<Edit />} />
-    //         <Route path="/login" element={<Login />} />
-    //         <Route path="/blog/:id" element={<Article />} />
+    <UserContextProvider>
+      <BlogProvider>
+        <div className="max-w-[1440px] h-full   w-full">
+          <Header />
+          <Routes>
+            <Route path="/" element={<Hero />} />
+            <Route path="/new" element={<NewArticle />} />
+            <Route path="/blog/:id/edit" element={<Edit />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/blog/:id" element={<Article />} />
 
-    //         <Route path="/register" element={<Register />} />
-    //       </Routes>
-    //       <Footer />
-    //     </div>
-    //   </BlogProvider>
-    // </UserContextProvider>
+            <Route path="/register" element={<Register />} />
+          </Routes>
+          <Footer />
+        </div>
+      </BlogProvider>
+    </UserContextProvider>
 
-    <Spinner />
+
   );
 }
 

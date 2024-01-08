@@ -16,13 +16,19 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cookieParser());
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin: "https://express-write-gamma.vercel.app",
+//   })
+// );
+
 app.use(
   cors({
     credentials: true,
-    origin: "https://express-write-gamma.vercel.app",
+    origin: "http://localhost:3000",
   })
 );
-
 app.use(express.json());
 
 const salt = bcrypt.genSaltSync(10);
@@ -90,8 +96,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/profile", (req, res) => {
-const token = req.header("Authorization").replace("Bearer ", "");
-
+  const token = req.header("Authorization").replace("Bearer ", "");
 
   jwt.verify(token, secret, {}, (err, info) => {
     if (err) {
@@ -113,8 +118,7 @@ app.post("/logout", async (req, res) => {
 });
 
 app.post("/create", async (req, res) => {
- const token = req.header("Authorization").replace("Bearer ", "");
-
+  const token = req.header("Authorization").replace("Bearer ", "");
 
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) {
@@ -178,7 +182,6 @@ app.get("/posts/:id", async (req, res) => {
 app.put("/posts", async (req, res) => {
   try {
     const token = req.header("Authorization").replace("Bearer ", "");
-
 
     jwt.verify(token, secret, {}, async (err, info) => {
       if (err) {
